@@ -269,7 +269,7 @@ footer{background:#0a0a0a;color:#fff;padding:36px 0;margin-top:70px}
       </form>
 
       <div class="contact-row">
-        <a class="contact-link orange" href="https://wa.me/393516852862" target="_blank" rel="noopener" id="whatsappLink">WHATSAPP<br><small>+39 351 685 2862</small></a>
+        <a class="contact-link orange" href="https://wa.me/393522003731" target="_blank" rel="noopener" id="whatsappLink">WHATSAPP<br><small>+39 352 200 3731</small></a>
         <a class="contact-link" href="mailto:info@espressichiari.it" id="emailLink">EMAIL<br><small>info@espressichiari.it</small></a>
         <a class="contact-link" href="https://www.instagram.com/espressichiari?igsi=b2x4Y3A5dDFtcnZp&utm_source=qr" target="_blank" rel="noopener">INSTAGRAM</a>
         <a class="contact-link" href="https://www.espressichiari.it/" target="_blank" rel="noopener">SITO WEB</a>
@@ -295,52 +295,75 @@ const WHATSAPP_NUMBER = "393522003731";
 const EMAIL_ADDRESS = "info@espressichiari.it";
 const INSTAGRAM_URL = "https://www.instagram.com/espressichiari?igsi=b2x4Y3A5dDFtcnZp&utm_source=qr";
 
-const params = new URLSearchParams(location.search);
-document.getElementById('source').value = params.get('src') || 'diretta';
+const params = new URLSearchParams(window.location.search);
+const source = params.get("src") || "diretta";
+document.getElementById("source").value = source;
 
-function value(id) { return document.getElementById(id).value.trim(); }
-function message() {
-  return `RICHIESTA BAG & GO
-Provenienza: ${value('source')}
-Partenza: ${value('from')}
-Destinazione: ${value('to')}
-Numero bagagli: ${value('bags')}
-Cosa devo spedire: ${value('type')}
-Nome: ${value('name')}
-Telefono / WhatsApp: ${value('phone')}
-Email: ${value('email')}
-Note: ${value('notes')}`;
+function value(id) {
+  return (document.getElementById(id)?.value || "").trim();
 }
 
-document.getElementById('quoteForm').addEventListener('submit', e => {
+function message() {
+  return `RICHIESTA PREVENTIVO - BAG & GO
+
+Codice provenienza: ${source}
+Partenza: ${value("from")}
+Destinazione: ${value("to")}
+Numero bagagli: ${value("bags")}
+Cosa devo spedire: ${value("type")}
+Nome e cognome: ${value("name")}
+Telefono / WhatsApp: ${value("phone")}
+Email: ${value("email") || "-"}
+Note: ${value("notes") || "-"}
+
+Richiesta inviata dalla landing BAG & GO Studenti.`;
+}
+
+const form = document.getElementById("quoteForm");
+const whatsapp = document.getElementById("whatsappLink");
+const email = document.getElementById("emailLink");
+const submitButton = form.querySelector('button[type="submit"]');
+
+submitButton.textContent = "INVIA LA RICHIESTA SU WHATSAPP";
+
+form.addEventListener("submit", function(e) {
   e.preventDefault();
-  const whatsapp = document.getElementById('whatsappLink');
-  const email = document.getElementById('emailLink');
-  whatsapp.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message())}`;
-  email.href = `mailto:${EMAIL_ADDRESS}?subject=${encodeURIComponent('Richiesta Bag & Go')}&body=${encodeURIComponent(message())}`;
-  whatsapp.scrollIntoView({behavior:'smooth', block:'center'});
+
+  if (!form.reportValidity()) return;
+
+  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message())}`;
+
+  // Directly opens WhatsApp with the completed request.
+  // The student only has to press Send inside WhatsApp.
+  window.location.assign(url);
 });
 
-document.getElementById('whatsappLink').addEventListener('click', e => {
-  const hasData = value('from') || value('to') || value('name') || value('phone') || value('type');
+whatsapp.href = `https://wa.me/${WHATSAPP_NUMBER}`;
+whatsapp.querySelector("small").textContent = "+39 352 200 3731";
+
+whatsapp.addEventListener("click", function(e) {
+  const hasData = value("from") || value("to") || value("name") || value("phone") || value("type");
   if (hasData) {
     e.preventDefault();
-    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message())}`;
-    window.location.href = url;
+    window.location.assign(
+      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message())}`
+    );
   }
 });
 
-document.getElementById('emailLink').addEventListener('click', e => {
-  const hasData = value('from') || value('to') || value('name') || value('phone') || value('type');
+email.addEventListener("click", function(e) {
+  const hasData = value("from") || value("to") || value("name") || value("phone") || value("type");
   if (hasData) {
     e.preventDefault();
-    const mailto = `mailto:${EMAIL_ADDRESS}?subject=${encodeURIComponent('Richiesta Bag & Go')}&body=${encodeURIComponent(message())}`;
-    window.location.href = mailto;
+    window.location.href =
+      `mailto:${EMAIL_ADDRESS}?subject=${encodeURIComponent("Richiesta preventivo Bag & Go - " + source)}&body=${encodeURIComponent(message())}`;
   }
 });
 
-if(INSTAGRAM_URL) {
-  document.querySelectorAll('a[href="https://www.instagram.com/espressichiari?igsi=b2x4Y3A5dDFtcnZp&utm_source=qr"]').forEach(a => a.href = INSTAGRAM_URL);
+if (INSTAGRAM_URL) {
+  document.querySelectorAll('a[href*="instagram.com/espressichiari"]').forEach(a => {
+    a.href = INSTAGRAM_URL;
+  });
 }
 </script>
 </body>
